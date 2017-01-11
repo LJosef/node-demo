@@ -1,0 +1,48 @@
+version: "2"
+
+services:
+
+  redis:
+    image: index.alauda.cn/library/redis:alpine
+    ports: ["6379"]
+
+  db:
+    image: index.alauda.cn/library/postgres:9.4
+
+  vote:
+    build: ./vote
+    command: python app.py
+    volumes:
+     - ./vote:/app
+    ports:
+      - "5000:80"
+    depends_on:
+      - redis
+    environment:
+      REDIS_PORT_6379_TCP_ADDR: redis
+      REDIS_PORT_6379_TCP_PORT: 6379
+
+  worker:
+    build: ./worker
+    command: java -jar target/worker-jar-with-dependencies.jar
+    depends_on:
+      - redis
+      - db
+    environment:
+      REDIS_PORT_6379_TCP_ADDR: redis
+      REDIS_PORT_6379_TCP_PORT: 6379
+      DB_PORT_5432_TCP_ADDR: db
+      DB_PORT_5432_TCP_PORT: 5432
+
+  result:
+    build: ./result
+    command: nodemon --debug server.js
+    volumes:
+      - ./result:/app
+    ports:
+      - "5001:80"
+    depends_on:
+      - db
+    environment:
+      DB_PORT_5432_TCP_ADDR: db
+      DB_PORT_5432_TCP_PORT: 5432

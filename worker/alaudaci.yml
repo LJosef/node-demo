@@ -1,0 +1,9 @@
+version: "0.1.0"
+pre_ci_boot:
+    image: index.alauda.cn/alauda/jdk8-maven
+    tag: latest
+ci:
+    - mvn package
+    - mkdir -p $ALAUDACI_DEST_DIR/worker/
+    - cp target/worker-jar-with-dependencies.jar  $ALAUDACI_DEST_DIR/worker/
+    - cp Dockerfile $ALAUDACI_DEST_DIR/worker/

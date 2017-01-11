@@ -1,0 +1,10 @@
+version: "0.1.0"
+pre_ci_boot:
+    image: registry.alauda.cn/library/maven
+    tag: latest
+ci:
+    - cd worker
+    - mvn package
+    - mkdir -p $ALAUDACI_DEST_DIR/worker/
+    - cp target/worker-jar-with-dependencies.jar  $ALAUDACI_DEST_DIR/worker/
+    - cp Dockerfile $ALAUDACI_DEST_DIR/worker/
